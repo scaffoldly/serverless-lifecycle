@@ -1,16 +1,17 @@
 {
-  "name": "serverless-hooks",
-  "version": "1.0.0",
-  "description": "Run npm scripts on serverless hook events",
+  "name": "serverless-lifecycle",
+  "version": "1.0.0-0",
+  "description": "Run package.json scripts on serverless hook events",
   "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jlopez/serverless-hooks.git"
+    "url": "git+https://github.com/scaffoldly/serverless-lifecycle.git"
   },
   "keywords": [
     "serverless",
     "serverless framework",
     "serverless hooks",
+    "serverless lifecycle",
     "serverless offline",
     "amazon web services",
     "aws",
@@ -18,15 +19,14 @@
     "npm scripts"
   ],
   "author": {
-    "name": "Jesus Lopez",
-    "email": "jesus@jesusla.com",
-    "url": "https://github.com/jlopez"
+    "name": "Scaffoldly",
+    "url": "https://github.com/scaffoldly"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jlopez/serverless-hooks/issues"
+    "url": "https://github.com/scaffoldly/serverless-lifeycle/issues"
   },
-  "homepage": "https://github.com/jlopez/serverless-hooks#readme",
+  "homepage": "https://github.com/jlopez/serverless-lifecycle#readme",
   "devDependencies": {
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "async-exit-hook": "^2.0.1",
+    "boolean": "^3.2.0",
     "lodash": "^4.17.15",
     "npm-run-all": "^4.1.5",
     "tmp-promise": "^2.0.2"
@@ -44,7 +45,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "eslint --report-unused-disable-directives ."
+      "pre-commit": "eslint --fix --report-unused-disable-directives ."
     }
   }
 }

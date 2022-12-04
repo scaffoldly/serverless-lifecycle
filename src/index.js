@@ -1,31 +1,42 @@
-const _ = require('lodash');
-const path = require('path');
-const fs = require('fs');
-const tmp = require('tmp-promise');
-const exitHook = require('async-exit-hook');
-const runAll = require('npm-run-all');
+const _ = require("lodash");
+const path = require("path");
+const fs = require("fs");
+const tmp = require("tmp-promise");
+const exitHook = require("async-exit-hook");
+const runAll = require("npm-run-all");
+const { boolean } = require("boolean");
 
-class ServerlessHooks {
+class ServerlessLifecycle {
   constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
-    this.pluginName = 'serverless-hooks';
+    this.pluginName = "serverless-lifecycle";
 
     this.usedStandardStreams = new Set();
     this.config = serverless.service.custom[this.pluginName] || {};
-    this.hookPrefix = `${_.trimEnd(this.config.hookPrefix || 'hook', ':')}:`;
-    this.runAllOptions = _.merge({ stdin: 0, stdout: 1, stderr: 1 }, this.config.runAllOptions);
-    _.forEach(['stdin', 'stdout', 'stderr'], (n) => this.setupStream(n));
+    this.hookPrefix = `${_.trimEnd(
+      this.config.hookPrefix || "lifecycle",
+      ":"
+    )}:`;
+    this.setupStreams = boolean(this.config.setupStreams) || true;
+    this.runAllOptions = _.merge(
+      { stdin: 0, stdout: 1, stderr: 1 },
+      this.config.runAllOptions
+    );
+    if (this.setupStreams) {
+      _.forEach(["stdin", "stdout", "stderr"], (n) => this.setupStream(n));
+    }
 
     this.hooks = this.buildHooksObject();
   }
 
   setupStream(stream) {
     const value = this.runAllOptions[stream] || null;
-    const isWritable = stream !== 'stdin';
-    this.runAllOptions[stream] = _.isString(value) || _.isObject(value)
-      ? ServerlessHooks.createStream(value, isWritable)
-      : value && this.allocateStdStream(stream);
+    const isWritable = stream !== "stdin";
+    this.runAllOptions[stream] =
+      _.isString(value) || _.isObject(value)
+        ? ServerlessLifecycle.createStream(value, isWritable)
+        : value && this.allocateStdStream(stream);
   }
 
   allocateStdStream(name) {
@@ -35,7 +46,9 @@ class ServerlessHooks {
 
   static createStream(value, isWritable) {
     const info = _.isString(value) ? { name: value } : value;
-    const createStream = isWritable ? fs.createWriteStream : fs.createReadStream;
+    const createStream = isWritable
+      ? fs.createWriteStream
+      : fs.createReadStream;
     return createStream(info.name, info);
   }
 
@@ -57,10 +70,10 @@ class ServerlessHooks {
 
   getNodeScripts() {
     const rootPath = this.serverless.config.servicePath;
-    const packageJsonPath = path.join(rootPath, 'package.json');
+    const packageJsonPath = path.join(rootPath, "package.json");
     try {
       return {
-        'hook:initialize': null,
+        "hook:initialize": null,
         // eslint-disable-next-line global-require, import/no-dynamic-require
         ...require(packageJsonPath).scripts,
       };
@@ -72,14 +85,16 @@ class ServerlessHooks {
   getHookRunner(scriptName, isSynthetic) {
     const trimLength = this.hookPrefix.length;
     const hook = scriptName.slice(trimLength);
-    const isInitializeHook = hook === 'initialize';
+    const isInitializeHook = hook === "initialize";
     const hookRunner = isInitializeHook ? this.onInitialize : this.onHook;
     return [hook, hookRunner.bind(this, scriptName, isSynthetic)];
   }
 
   async onInitialize(scriptName, isSynthetic) {
     await this.setupServerlessContext();
-    this.usedStandardStreams.forEach((name) => process[name].setMaxListeners(0));
+    this.usedStandardStreams.forEach((name) =>
+      process[name].setMaxListeners(0)
+    );
     if (isSynthetic) return undefined;
     return this.onHook();
   }
@@ -102,17 +117,30 @@ class ServerlessHooks {
       cliOptions: serverless.pluginManager.cliOptions,
       servicePath: serverless.config.servicePath,
       service: _.chain(serverless.service)
-        .pick(['service', 'custom', 'plugins', 'provider', 'functions', 'resources',
-          'package', 'frameworkVersion', 'app', 'tenant', 'org', 'layers', 'outputs'])
+        .pick([
+          "service",
+          "custom",
+          "plugins",
+          "provider",
+          "functions",
+          "resources",
+          "package",
+          "frameworkVersion",
+          "app",
+          "tenant",
+          "org",
+          "layers",
+          "outputs",
+        ])
         .pickBy()
         .value(),
     };
   }
 
   async onHook(scriptName) {
-    this.debug(`Running hook script ${scriptName}`);
+    this.debug(`Running lifecycle script ${scriptName}`);
     return runAll(scriptName, this.runAllOptions);
   }
 }
 
-module.exports = ServerlessHooks;
+module.exports = ServerlessLifecycle;
