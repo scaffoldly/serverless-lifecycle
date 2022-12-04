@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/scaffoldly/serverless-lifeycle/issues"
   },
-  "homepage": "https://github.com/jlopez/serverless-lifecycle#readme",
+  "homepage": "https://github.com/scaffoldly/serverless-lifecycle#readme",
   "devDependencies": {
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
