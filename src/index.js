@@ -4,7 +4,6 @@ const fs = require('fs');
 const tmp = require('tmp-promise');
 const exitHook = require('async-exit-hook');
 const runAll = require('npm-run-all');
-const { boolean } = require('boolean');
 
 class ServerlessLifecycle {
   constructor(serverless, options) {
@@ -18,14 +17,11 @@ class ServerlessLifecycle {
       this.config.hookPrefix || 'lifecycle',
       ':',
     )}:`;
-    this.setupStreams = boolean(this.config.setupStreams) || true;
     this.runAllOptions = _.merge(
       { stdin: 0, stdout: 1, stderr: 1 },
       this.config.runAllOptions,
     );
-    if (this.setupStreams) {
-      _.forEach(['stdin', 'stdout', 'stderr'], (n) => this.setupStream(n));
-    }
+    _.forEach(['stdin', 'stdout', 'stderr'], (n) => this.setupStream(n));
 
     this.hooks = this.buildHooksObject();
   }
@@ -40,7 +36,9 @@ class ServerlessLifecycle {
 
   allocateStdStream(name) {
     this.usedStandardStreams.add(name);
-    return process[name];
+    const ret = process[name];
+    ret.end = () => {};
+    return ret;
   }
 
   static createStream(value, isWritable) {

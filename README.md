@@ -39,7 +39,6 @@ These are the configuration entries and their default values:
 custom:
   serverless-livecycle:
     hookPrefix: lifecycle    # The npm script prefix to indicate a serverless hook script
-    setupStreams: true       # Set up redirection of stderr/stdout/stdin for npm-run-all
     runAllOptions:           # See https://github.com/mysticatea/npm-run-all/blob/HEAD/docs/node-api.md for details
       stderr:                # boolean to enable stderr, or path to file
       stdout:                # boolean to enable stdout, or path to file
