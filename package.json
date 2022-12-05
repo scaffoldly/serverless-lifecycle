@@ -1,6 +1,6 @@
 {
   "name": "serverless-lifecycle",
-  "version": "1.0.5",
+  "version": "1.0.6-0",
   "description": "Run package.json scripts on serverless hook events",
   "main": "src/index.js",
   "repository": {
