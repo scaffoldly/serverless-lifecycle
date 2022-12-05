@@ -1,20 +1,20 @@
-const _ = require("lodash");
-const path = require("path");
-const fs = require("fs");
-const tmp = require("tmp-promise");
-const exitHook = require("async-exit-hook");
-const runAll = require("npm-run-all");
+const _ = require('lodash');
+const path = require('path');
+const fs = require('fs');
+const tmp = require('tmp-promise');
+const exitHook = require('async-exit-hook');
+const runAll = require('npm-run-all');
 
 class ServerlessLifecycle {
   constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
-    this.pluginName = "serverless-lifecycle";
+    this.pluginName = 'serverless-lifecycle';
 
     this.config = serverless.service.custom[this.pluginName] || {};
     this.hookPrefix = `${_.trimEnd(
-      this.config.hookPrefix || "lifecycle",
-      ":"
+      this.config.hookPrefix || 'lifecycle',
+      ':',
     )}:`;
 
     this.hooks = this.buildHooksObject();
@@ -38,10 +38,10 @@ class ServerlessLifecycle {
 
   getNodeScripts() {
     const rootPath = this.serverless.config.servicePath;
-    const packageJsonPath = path.join(rootPath, "package.json");
+    const packageJsonPath = path.join(rootPath, 'package.json');
     try {
       return {
-        "hook:initialize": null,
+        'hook:initialize': null,
         // eslint-disable-next-line global-require, import/no-dynamic-require
         ...require(packageJsonPath).scripts,
       };
@@ -53,7 +53,7 @@ class ServerlessLifecycle {
   getHookRunner(scriptName, isSynthetic) {
     const trimLength = this.hookPrefix.length;
     const hook = scriptName.slice(trimLength);
-    const isInitializeHook = hook === "initialize";
+    const isInitializeHook = hook === 'initialize';
     const hookRunner = isInitializeHook ? this.onInitialize : this.onHook;
     return [hook, hookRunner.bind(this, scriptName, isSynthetic)];
   }
@@ -83,19 +83,19 @@ class ServerlessLifecycle {
       servicePath: serverless.config.servicePath,
       service: _.chain(serverless.service)
         .pick([
-          "service",
-          "custom",
-          "plugins",
-          "provider",
-          "functions",
-          "resources",
-          "package",
-          "frameworkVersion",
-          "app",
-          "tenant",
-          "org",
-          "layers",
-          "outputs",
+          'service',
+          'custom',
+          'plugins',
+          'provider',
+          'functions',
+          'resources',
+          'package',
+          'frameworkVersion',
+          'app',
+          'tenant',
+          'org',
+          'layers',
+          'outputs',
         ])
         .pickBy()
         .value(),
